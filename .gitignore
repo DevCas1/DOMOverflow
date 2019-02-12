@@ -1,0 +1,9 @@
+.vs/
+DOMOverflow/Bin/
+
+# Package Restore should auto-download the packages as long as packages.config is committed.
+packages/
+
+# Database files.
+*.mdf
+*.ldf

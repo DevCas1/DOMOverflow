@@ -1,0 +1,29 @@
+﻿@using DOMOverflow;
+@using WebMatrix.Data;
+
+@{
+    // Connect to the database.
+    Database db = DBConnect.Connect("Database.mdf");
+}
+
+<html5>
+     <head>
+          <title>Example Page</title>
+
+          <!-- Remember to remove any imports you aren't using when creating an actual page. -->
+
+          <!-- jQuery -->
+          <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+
+          <!-- Bootstrap -->
+          <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.0/js/bootstrap.min.js"></script>
+          <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.0/css/bootstrap.min.css">
+
+          <!-- FontAwesome -->
+          <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+     </head>
+
+     <body>
+          <h1>This is an example page.</h1>
+     </body>
+</html5>
