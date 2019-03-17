@@ -1,0 +1,11 @@
+﻿EXEC sp_msforeachtable "ALTER TABLE ? NOCHECK CONSTRAINT all"
+
+DELETE FROM Questions;
+DELETE FROM Answers;
+DELETE FROM Posts;
+DELETE FROM QuestionTopics;
+DELETE FROM Topics;
+DELETE FROM Reports;
+DELETE FROM Users;
+
+EXEC sp_msforeachtable "ALTER TABLE ? WITH CHECK CHECK CONSTRAINT all"
