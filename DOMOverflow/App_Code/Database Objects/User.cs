@@ -7,9 +7,9 @@ namespace DOMOverflow {
     public class User {
         public readonly string username, email;
         public readonly Guid id;
-        public readonly EnumUserGroup group;
+        public readonly UserGroup group;
         
-        public User(string username, string email, Guid id, EnumUserGroup group) {
+        public User(string username, string email, Guid id, UserGroup group) {
             this.username   = username;
             this.email      = email;
             this.id         = id;

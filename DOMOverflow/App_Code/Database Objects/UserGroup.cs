@@ -4,7 +4,7 @@ using System.Linq;
 using System.Web;
 
 namespace DOMOverflow {
-    public enum EnumUserGroup {
+    public enum UserGroup {
         NOT_VERIFIED            = 0,
         PROJECT_PARTICIPANT     = 1,
         STUDENT                 = 2,

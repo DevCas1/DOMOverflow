@@ -115,7 +115,7 @@ namespace DOMOverflow {
                 return false;
             }
 
-            session["UserSession"] = new User(username, user.Email, Guid.Parse(user.UUID), (EnumUserGroup) user.UserGroup);
+            session["UserSession"] = new User(username, user.Email, Guid.Parse(user.UUID), (UserGroup) user.UserGroup);
             error = "Geen fouten";
             return true;
         }
