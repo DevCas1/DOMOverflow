@@ -75,6 +75,13 @@ CREATE TABLE Reports(
 );
 
 
+DROP TABLE IF EXISTS AllowedEmails;
+CREATE TABLE AllowedEmails(                                                -- Email adresses that are allowed to register for the website.
+     Email     NVARCHAR(127)  NOT NULL PRIMARY KEY,
+     GroupID   INT            NOT NULL                                     -- Foreign key: references UserGroups.GroupID.
+);
+
+
 -- Create foreign keys.
 ALTER TABLE Users             ADD FOREIGN KEY (UserGroup)        REFERENCES UserGroups(GroupID);
 
@@ -93,6 +100,7 @@ ALTER TABLE QuestionTopics    ADD FOREIGN KEY (Topic)            REFERENCES Topi
 ALTER TABLE Reports           ADD FOREIGN KEY (Post)             REFERENCES Posts(UUID);
 ALTER TABLE Reports           ADD FOREIGN KEY (Reporter)         REFERENCES Users(UUID);
 
+ALTER TABLE AllowedEmails     ADD FOREIGN KEY (GroupID)          REFERENCES UserGroups(GroupID);
 
 -- Insert required values into the database.
 -- Do not change the ordering of these records.

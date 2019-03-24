@@ -10,6 +10,33 @@
 -- Don't forget to call QRY DELETE TEST DATA before using the database in production.
 
 
+-- Allowed Email Adresses
+INSERT INTO AllowedEmails VALUES (
+     'test_user_01@test.com',
+     1
+);
+
+INSERT INTO AllowedEmails VALUES (
+     'test_user_02@test.com',
+     0
+);
+
+INSERT INTO AllowedEmails VALUES (
+     'test_user_03@test.com',
+     2
+);
+
+INSERT INTO AllowedEmails VALUES (
+     'test_user_04@test.com',
+     3
+);
+
+INSERT INTO AllowedEmails VALUES (
+     'test_admin@test.com',
+     4
+);
+
+
 -- Users
 INSERT INTO Users VALUES(
      'a6cbea09-e17c-48b6-9afe-182b785e87a1',
