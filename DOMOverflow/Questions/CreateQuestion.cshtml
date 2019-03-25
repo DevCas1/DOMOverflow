@@ -1,0 +1,34 @@
+﻿@{
+    Layout = "~/_Layout.cshtml";
+    Page.Title = "New Question";
+
+    string questionTitle = string.Empty;
+    string questionDetails = string.Empty;
+    string tags = string.Empty;
+
+    if (IsPost)
+    {
+        questionTitle = Request.Form["title"];
+        questionDetails = Request.Form["details"];
+        // Some fancy DB stuff
+    }
+}
+<body>
+    <div class="container">
+        <form method="POST">
+            <div class="form-group">
+                <label for="formGroupExampleInput">Question Title</label>
+                <input type="text" class="form-control" name="title" id="formGroupExampleInput" placeholder="E.g. How to use string.Concat" required>
+            </div>
+            <div class="form-group">
+                <label for="formGroupExampleInput2">Question</label>
+                <textarea type="text" class="form-control" name="details" id="formGroupExampleInput2" placeholder="Full details about the problem" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="formGroupExampleInput2">Tags</label>
+                <input type="text" class="form-control" name="tags" id="formGroupExampleInput2" placeholder="C#, .NET"/>
+            </div>
+            <input type="submit" class="btn btn-primary" value="Submit" />
+        </form>
+    </div>
+</body>
