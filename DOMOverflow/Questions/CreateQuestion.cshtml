@@ -1,4 +1,5 @@
-﻿@{
+﻿@using DOMOverflow
+@{
     Layout = "~/_Layout.cshtml";
     Page.Title = "New Question";
 
@@ -6,10 +7,21 @@
     string questionDetails = string.Empty;
     string tags = string.Empty;
 
-    if (IsPost)
+    Validation.RequireField("title", "A question title is required!");
+    Validation.RequireField("details", "You can't upload a question without specifying it's details!");
+
+    if (DBManager.GetLoggedInUser(Session) == null)
+    {
+        Response.Redirect("~/index");
+    }
+
+    if (IsPost && Validation.IsValid())
     {
         questionTitle = Request.Form["title"];
         questionDetails = Request.Form["details"];
+        Guid questionId = Guid.NewGuid();
+        DBManager.PostQuestion(new Question(questionId, DBManager.GetLoggedInUser(Session).id, DateTime.UtcNow, questionTitle, questionDetails, 0, null, new List<Topic>()));
+        Response.Redirect($"~/Questions/Question?id={questionId}");
         // Some fancy DB stuff
     }
 }
