@@ -13,7 +13,7 @@ namespace DOMOverflow {
         public const string DATABASE_NAME = "DOMOverflow.mdf";
 
         public static Database Connect() {
-            string connstr  = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=|DataDirectory|\" + DATABASE_NAME + ";Integrated Security=True";
+            string connstr = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=|DataDirectory|\" + DATABASE_NAME + ";Integrated Security=True";
             string provider = "System.Data.SqlClient";
 
             return Database.OpenConnectionString(connstr, provider);
@@ -59,9 +59,9 @@ namespace DOMOverflow {
                 return false;
             }
 
-            int  group = qryAllowed.GroupID;
-            var  pwd   = DBManager.HashAndSalt(password);
-            Guid id    = Guid.NewGuid();
+            int group = qryAllowed.GroupID;
+            var pwd = DBManager.HashAndSalt(password);
+            Guid id = Guid.NewGuid();
 
             int changes = db.Execute(@"
                 BEGIN
@@ -115,7 +115,7 @@ namespace DOMOverflow {
                 return false;
             }
 
-            session["UserSession"] = new User(username, user.Email, Guid.Parse(user.UUID), (UserGroup) user.UserGroup);
+            session["UserSession"] = new User(username, user.Email, Guid.Parse(user.UUID), (UserGroup)user.UserGroup);
             error = "Geen fouten";
             return true;
         }
@@ -127,7 +127,32 @@ namespace DOMOverflow {
 
 
         public static User GetLoggedInUser(HttpSessionStateBase session) {
-            return (User) session["UserSession"];
+            return (User)session["UserSession"];
+        }
+
+        
+        public static Topic CreateTopic(string name, string description) {
+            throw new NotImplementedException();
+        }
+
+
+        public static List<Topic> GetTopics() {
+            throw new NotImplementedException();
+        }
+
+
+        public static void PostQuestion(string title, string content, List<Topic> topics, DateTime creation, Guid user) {
+            throw new NotImplementedException();
+        }
+
+
+        public static void PostAnswer(string content, DateTime creation, Guid question, Guid user) {
+            throw new NotImplementedException();
+        }
+
+
+        public static void MarkAsSolution(Guid question, Guid answer) {
+            throw new NotImplementedException();
         }
     }
 }
