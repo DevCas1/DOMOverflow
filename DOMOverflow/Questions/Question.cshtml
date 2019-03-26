@@ -1,0 +1,17 @@
+﻿@using DOMOverflow
+@{
+    Layout = "~/_Layout.cshtml";
+
+    if (!IsPost)
+    {
+        if ((Request.QueryString["id"].IsEmpty() || !Request.QueryString["id"].Is<Guid>()) && DBManager.GetQuestion(Request.QueryString["id"].As<Guid>()) == null)
+        {
+            Response.Redirect("~/404");
+        }
+    }
+
+    Page.Title = "";
+}
+<body>
+
+</body>
