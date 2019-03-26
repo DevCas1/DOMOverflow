@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Web;
 using WebMatrix.Data;
@@ -13,7 +14,7 @@ namespace DOMOverflow {
         public const string DATABASE_NAME = "DOMOverflow.mdf";
 
         public static Database Connect() {
-            string connstr  = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=|DataDirectory|\" + DATABASE_NAME + ";Integrated Security=True";
+            string connstr = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=|DataDirectory|\" + DATABASE_NAME + ";Integrated Security=True";
             string provider = "System.Data.SqlClient";
 
             return Database.OpenConnectionString(connstr, provider);
@@ -59,9 +60,9 @@ namespace DOMOverflow {
                 return false;
             }
 
-            int  group = qryAllowed.GroupID;
-            var  pwd   = DBManager.HashAndSalt(password);
-            Guid id    = Guid.NewGuid();
+            int group = qryAllowed.GroupID;
+            var pwd = DBManager.HashAndSalt(password);
+            Guid id = Guid.NewGuid();
 
             int changes = db.Execute(@"
                 BEGIN
@@ -115,7 +116,7 @@ namespace DOMOverflow {
                 return false;
             }
 
-            session["UserSession"] = new User(username, user.Email, Guid.Parse(user.UUID), (UserGroup) user.UserGroup);
+            session["UserSession"] = new User(username, user.Email, Guid.Parse(user.UUID), (UserGroup)user.UserGroup);
             error = "Geen fouten";
             return true;
         }
@@ -128,6 +129,236 @@ namespace DOMOverflow {
 
         public static User GetLoggedInUser(HttpSessionStateBase session) {
             return (User) session["UserSession"];
+        }
+
+
+        /// <summary>
+        /// Attempts to create a new topic.
+        /// </summary>
+        /// <param name="name">The topic's name.</param>
+        /// <param name="description">The topic's description.</param>
+        /// <param name="error">Output parameter for any error messages that may have been produced.</param>
+        /// <returns>An object representation of the new topic, or null if there was an error.</returns>
+        public static Topic CreateTopic(string name, string description, out string error) {
+            Database db = DBManager.Connect();
+
+            Guid id = Guid.NewGuid();
+
+            int changes = db.Execute(@"
+                BEGIN
+                    IF NOT EXISTS (SELECT * FROM Topics WHERE UUID=@0)
+                    BEGIN
+                        INSERT INTO Topics VALUES (@0, @1, @2)
+                    END
+                END
+                ",
+                id.ToString(),
+                name,
+                description
+            );
+
+            if (changes == 0) {
+                error = "De gegeven topic bestaat al.";
+                return null;
+            }
+
+            error = "Geen fouten.";
+            return new Topic(id, name, description);
+        }
+
+
+        /// <summary>
+        /// Get a list of all topics that currently exist.
+        /// </summary>
+        /// <returns>A list of all currently existing topics.</returns>
+        public static List<Topic> GetTopics() {
+            Database db = DBManager.Connect();
+
+            List<Topic> result = new List<Topic>();
+            var qryTopics = db.Query("SELECT * FROM Topics");
+
+            foreach (dynamic topic in qryTopics) result.Add(new Topic(Guid.Parse(topic.UUID), topic.TopicName, topic.TopicDesc));
+
+            return result;
+        }
+
+
+        /// <summary>
+        /// Attempt to insert a question into the database.
+        /// </summary>
+        /// <param name="question">The question to be inserted</param>
+        /// <throws>An ExternalException if the database fails to complete one or more of the required queries.</throws>
+        public static void PostQuestion(Question question) {
+            Database db = DBManager.Connect();
+
+            int changesPost = db.Execute(@"
+                BEGIN
+                    IF NOT EXISTS (SELECT * FROM Posts WHERE UUID=@0)
+                    BEGIN
+                        INSERT INTO Posts     VALUES (@0, @1, @2, @3, @4, @5);
+                        INSERT INTO Questions VALUES (@0, @6, @7);
+                    END
+                END
+                ",
+                question.UUID.ToString(),
+                question.PosterID.ToString(),
+                question.Type.ToString(),
+                question.PostDate,
+                question.Content,
+                question.Rating,
+                question.Answer == null ? null : question.Answer.ToString(),
+                question.Title
+            );
+
+            if (changesPost == 0) throw new ExternalException("Er is een fout opgetreden tijdens het toevoegen van de post " + question.UUID.ToString() + " in de database.");
+
+            foreach (Topic topic in question.Topics) {
+                int changesTopic = db.Execute("INSERT INTO QuestionTopics VALUES (@0, @1)", question.UUID.ToString(), topic.UUID.ToString());
+                if (changesTopic == 0) throw new ExternalException("Er is een fout opgetreden tijdens het toevoegen van de topic " + topic.name + " aan de vraag " + question.UUID.ToString());
+            }
+        }
+
+
+        /// <summary>
+        /// Attempt to insert an answer into the database.
+        /// </summary>
+        /// <param name="answer">The answer to be inserted</param>
+        /// <throws>An ExternalException if the database fails to complete one or more of the required queries.</throws>
+        public static void PostAnswer(Answer answer) {
+            Database db = DBManager.Connect();
+
+            int changesPost = db.Execute(@"
+                BEGIN
+                    IF NOT EXISTS (SELECT * FROM Posts WHERE UUID=@0)
+                    BEGIN
+                        INSERT INTO Posts   VALUES (@0, @1, @2, @3, @4, @5);
+                        INSERT INTO Answers VALUES (@0, @6);
+                    END
+                END
+                ",
+                answer.UUID.ToString(),
+                answer.PosterID.ToString(),
+                answer.Type.ToString(),
+                answer.PostDate,
+                answer.Content,
+                answer.Rating,
+                answer.Question.ToString()
+            );
+
+            if (changesPost == 0) throw new ExternalException("Er is een fout opgetreden tijdens het toevoegen van de post " + answer.UUID.ToString() + " in de database.");
+        }
+
+
+        /// <summary>
+        /// Marks the given answer as the solution to the given question.
+        /// </summary>
+        /// <param name="question">The question</param>
+        /// <param name="answer">The answer</param>
+        /// <throws>An ExternalException if the database fails to complete one or more of the required queries.</throws>
+        public static void MarkAsSolution(Question question, Answer answer) {
+            Database db = DBManager.Connect();
+
+            int changes = db.Execute("UPDATE Questions SET Answer=@0 WHERE Question=@1", answer.UUID.ToString(), question.UUID.ToString());
+            if (changes == 0) throw new ExternalException("Er is een fout opgetreden tijdens het markeren van het antwoord " + answer.UUID.ToString() + " op de vraag " + question.UUID.ToString());
+        }
+
+        
+        /// <summary>
+        /// Get the question with the given ID.
+        /// </summary>
+        /// <param name="id">The ID of the question.</param>
+        /// <returns>The question, or null if no such question exists.</returns>
+        public static Question GetQuestion(Guid id) {
+            Database db = DBManager.Connect();
+
+            dynamic qry = db.QuerySingle(@"
+                SELECT 
+                    Poster,  
+                    PostDate, 
+                    Content, 
+                    Rating, 
+                    Title, 
+                    Answer
+                FROM Posts INNER JOIN Questions ON Posts.UUID = Questions.UUID
+                WHERE Posts.UUID = @0",
+                id.ToString()
+            );
+
+            if (qry == null) return null;
+
+            IEnumerable<dynamic> topicsQry = db.Query(@"
+                SELECT
+                    UUID,
+                    TopicName,
+                    TopicDesc
+                FROM QuestionTopics INNER JOIN Topics ON QuestionTopics.Topic = Topics.UUID
+                WHERE QuestionTopics.Question = @0
+                ",
+                id.ToString()
+            );
+
+            List<Topic> topics = new List<Topic>();
+            foreach (dynamic topic in topicsQry) topics.Add(new Topic(Guid.Parse(topic.UUID), topic.TopicName, topic.TopicDesc));
+
+
+            return new Question(
+                id,
+                Guid.Parse(qry.Poster),
+                qry.PostDate,
+                qry.Title,
+                qry.Content,
+                qry.Rating,
+                qry.Answer == null ? null : Guid.Parse(qry.Answer),
+                topics
+            );
+        }
+
+
+        /// <summary>
+        /// Get the answer with the given ID.
+        /// </summary>
+        /// <param name="id">The ID of the answer.</param>
+        /// <returns>The answer, or null if no such answer exists.</returns>
+        public static Answer GetAnswer(Guid id) {
+            Database db = DBManager.Connect();
+
+            dynamic qry = db.QuerySingle(@"
+                SELECT 
+                    Poster,  
+                    PostDate, 
+                    Content, 
+                    Rating, 
+                    Question
+                FROM Posts INNER JOIN Answers ON Posts.UUID = Answers.UUID
+                WHERE Posts.UUID = @0",
+                id.ToString()
+            );
+
+            if (qry == null) return null;
+            return new Answer(id, Guid.Parse(qry.Poster), Guid.Parse(qry.Question), qry.PostDate, qry.Content, qry.Rating);
+        } 
+
+
+        public static List<Answer> GetAnswersForQuestion(Question question) {
+            Database db = DBManager.Connect();
+
+            IEnumerable<dynamic> qry = db.Query(@"
+                SELECT
+                    Posts.UUID AS UUID,
+                    Poster,  
+                    PostDate, 
+                    Content, 
+                    Rating, 
+                    Question
+                FROM Posts INNER JOIN Answers ON Posts.UUID = Answers.UUID
+                WHERE Answers.Question = @0",
+                question.UUID.ToString()
+            );
+
+            List<Answer> results = new List<Answer>();
+            foreach (dynamic answer in qry) results.Add(new Answer(Guid.Parse(answer.UUID), Guid.Parse(answer.Poster), Guid.Parse(answer.Question), answer.PostDate, answer.Content, answer.Rating));
+
+            return results;
         }
     }
 }

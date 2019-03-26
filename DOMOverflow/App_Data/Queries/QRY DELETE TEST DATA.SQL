@@ -7,5 +7,6 @@ DELETE FROM QuestionTopics;
 DELETE FROM Topics;
 DELETE FROM Reports;
 DELETE FROM Users;
+DELETE FROM AllowedEmails;
 
 EXEC sp_msforeachtable "ALTER TABLE ? WITH CHECK CHECK CONSTRAINT all"
