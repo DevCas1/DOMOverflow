@@ -1,8 +1,7 @@
-﻿@{
-//SessionData session = (SessionData)Session["Login"];
-//bool isLoggedIn = session != null;
-//string username = isLoggedIn ? !string.IsNullOrEmpty(session.Email) ? session.Email : $"Guest - {session.Id}" : string.Empty;
-    bool isLoggedIn = false;
+﻿@using DOMOverflow
+@{
+    var user = DBManager.GetLoggedInUser(Session);
+    bool isLoggedIn = user != null;
 }
 
 <!doctype html>
@@ -46,7 +45,7 @@
                     @if (isLoggedIn)
                     {
                         <text>
-                            <a class="email" href="~/index.cshtml" @*title="Wishlist"*@>Username</a><br />
+                            <a class="email" href="~/index.cshtml" @*title="Wishlist"*@>@user.username</a>
                             <a class="text-danger" href="~/Login?Logout=true" title="Logout">Logout</a>
                         </text>
                     }
