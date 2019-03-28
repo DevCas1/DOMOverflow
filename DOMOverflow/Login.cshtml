@@ -1,0 +1,78 @@
+﻿@using DOMOverflow;
+
+@{
+     Page.Title = "Inloggen";
+     Layout = "~/_Layout.cshtml";
+
+     // Allow other pages to define a page to redirect back to after the login is done.
+     string src = Request.QueryString["src"];
+     if (string.IsNullOrEmpty(src)) { src = "index"; }
+     src = "~/" + src + ".cshtml";
+
+
+     if (DBManager.GetLoggedInUser(Session) != null) { Response.Redirect(src); }
+
+     if (IsPost) {
+          Validation.RequireField("username", "Dit veld is verplicht.");
+          Validation.RequireField("password", "Dit veld is verplicht.");
+
+          if (Validation.IsValid()) {
+               Validation.Add("username", new ValidatorLogin(Request.Form["username"], Request.Form["password"]));
+               if (Validation.IsValid()) { Response.Redirect(src); }
+          }
+     }
+}
+
+<html>
+     <head>
+          <link rel="stylesheet" href="css/LoginRegister.css" />
+     </head>
+
+     <body>
+          <div class="row">
+               <div class="col-md-3"></div>
+
+               <div class="col-md-6 bg-light main-content-border">
+                    <div class="row">
+                         <div class="col-md-12 text-center">
+                              <h1><b>Inloggen</b></h1>
+                         </div>
+                    </div>
+
+                    <div class="row">
+                         <div class="col-md-1"></div>
+
+                         <div class="col-md-10">
+                              <form method="post" action="~/Login.cshtml">
+                                   <div class="form-group">
+                                        <label for="username"><b>Gebruikersnaam:</b></label>
+                                        <input class="form-control" type="text" name="username" value="@Request.Form["username"]" />
+
+                                        @foreach (string str in (Validation.GetErrors("username").SplitAll().RemoveDuplicates())) {
+                                             <small class="form-text text-danger">@str</small>
+                                        }
+                                   </div>
+
+                                   <div class="form-group">
+                                        <label for="password"><b>Wachtwoord:</b></label>
+                                        <input class="form-control" type="password" name="password" />
+
+                                        @foreach (string str in (Validation.GetErrors("password").SplitAll().RemoveDuplicates())) {
+                                             <small class="form-text text-danger">@str</small>
+                                        }
+                                   </div>
+
+                                   <div class="text-center">
+                                        <button type="submit" class="btn btn-primary standard-button-size">Log In</button>
+                                   </div>
+                              </form>
+                         </div>
+
+                         <div class="col-md-1"></div>
+                    </div>
+               </div>
+
+               <div class="col-md-3"></div>
+          </div>
+     </body>
+</html>

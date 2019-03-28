@@ -1,0 +1,10 @@
+﻿.main-content-border {
+     border-radius: 25px;
+     border: 1px solid darkgray;
+     margin: 20px;
+     padding: 10px;
+}
+
+.standard-button-size {
+     width: 150px;
+}

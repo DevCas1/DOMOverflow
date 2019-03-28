@@ -1,0 +1,11 @@
+﻿@using DOMOverflow;
+
+@{
+    // Allow other pages to define a page to redirect back to after the logout is done.
+    string src = Request.QueryString["src"];
+    if (string.IsNullOrEmpty(src)) { src = "index"; }
+    src = "~/" + src + ".cshtml";
+
+    DBManager.LogoutUser(Session);
+    Response.Redirect(src);
+}
