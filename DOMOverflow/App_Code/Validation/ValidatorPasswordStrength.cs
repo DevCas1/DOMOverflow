@@ -6,8 +6,6 @@ using System.Web.WebPages;
 
 namespace DOMOverflow {
     public class ValidatorPasswordStrength : ValidatorDynamicErrorBase {
-        public const string AllowedSpecialChars = "";
-
         private int min, max;
         private bool lower, upper, number, special;
 
