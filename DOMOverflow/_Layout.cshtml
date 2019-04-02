@@ -1,0 +1,92 @@
+﻿@using DOMOverflow
+@{
+    string page = Request.RawUrl.Substring(1).Split('.')[0];
+
+    var user = DBManager.GetLoggedInUser(Session);
+    bool isLoggedIn = user != null;
+}
+
+<!doctype html>
+<html lang="nl">
+<head>
+     <title>@Page.Title - DOMOverflow</title>
+     <meta charset="utf-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+     <!-- Bootstrap -->
+     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.0/js/bootstrap.min.js"></script>
+     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/css/bootstrap.min.css" integrity="sha384-Smlep5jCw/wG7hdkwQ/Z5nLIefveQRIY9nfy6xoR1uRYBtpZgI6339F5dgvm/e9B" crossorigin="anonymous">
+
+     <!-- FontAwesome -->
+     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+
+     <!-- JQuery -->
+     <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+
+     <!-- CSS -->
+     <link rel="stylesheet" href="css/layout.css" />
+     <link rel="stylesheet" href="css/@(page).css" />
+</head>
+<body>
+    <div id="container">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <a class="navbar-brand" href="~/Login">DOMOverflow</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarText">
+                <ul class="navbar-nav mr-auto">
+                    @*@if (isLoggedIn && session.IsGuest)*@
+                    @* { *@
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Link 1</a>
+                    </li>
+                    @* } *@
+                    @*@if (isLoggedIn)*@
+                    @* { *@
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Link 2</a>
+                    </li>
+                    @* } *@
+                </ul>
+                <section id="login" class="navbar-text">
+                    @if (isLoggedIn)
+                    {
+                        <text>
+                            <a class="email" href="~/index.cshtml" @*title="Wishlist"*@>@user.username</a>
+                            <a class="text-danger" href="~/Login?Logout=true" title="Logout">Logout</a>
+                        </text>
+                    }
+                    else
+                    {
+                        <ul class="navbar-nav mr-auto">
+                            <li class="nav-item">
+                                <a class="nav-link" href="~/Login"><i class="fas fa-user"></i> Login</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="~/Register"><i class="fas fa-user-plus"></i> Register</a>
+                            </li>
+                        </ul>
+                    }
+                </section>
+            </div>
+        </nav>
+        <div id="header">
+
+        </div>
+        <div id="main">
+            @RenderBody()
+        </div>
+        <div id="footer">
+            @RenderSection("Scripts", false)
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+            crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+            crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/js/bootstrap.min.js" integrity="sha384-o+RDsa0aLu++PJvFqy8fFScvbHFLtbvScb8AjopnFD+iEQ7wo/CG0xlczd+2O/em"
+            crossorigin="anonymous"></script>
+</body>
+</html>
