@@ -10,12 +10,15 @@
     Validation.RequireField("title", "A question title is required!");
     Validation.RequireField("details", "You can't upload a question without specifying it's details!");
 
-    if (DBManager.GetLoggedInUser(Session) == null)
+    if (!IsPost)
     {
-        Response.Redirect("~/index");
+        User user = DBManager.GetLoggedInUser(Session);
+        if (user == null || user.group == UserGroup.NOT_VERIFIED || user.group == UserGroup.STUDENT)
+        {
+            Response.Redirect("~/index");
+        }
     }
-
-    if (IsPost && Validation.IsValid())
+    else if (Validation.IsValid())
     {
         questionTitle = Request.Form["title"];
         questionDetails = Request.Form["details"];
@@ -24,17 +27,20 @@
         string[] tagArray = tags.Split(',');
         List<Topic> topics = new List<Topic>();
         List<Topic> dbTopics = DBManager.GetTopics();
-        foreach (var tag in tagArray)
+        if (!string.IsNullOrEmpty(tags))
         {
-            Topic topic = dbTopics.Find(x => x.name == tag);
-            if (topic != null)
+            foreach (var tag in tagArray)
             {
-                topics.Add(topic);
-            }
-            else
-            {
-                string errorMessage;
-                topics.Add(DBManager.CreateTopic(tag, string.Empty, out errorMessage));
+                Topic topic = dbTopics.Find(x => x.name == tag);
+                if (topic != null)
+                {
+                    topics.Add(topic);
+                }
+                else
+                {
+                    string errorMessage;
+                    topics.Add(DBManager.CreateTopic(tag, string.Empty, out errorMessage));
+                }
             }
         }
         DBManager.PostQuestion(new Question(questionId, DBManager.GetLoggedInUser(Session).id, DateTime.UtcNow, questionTitle, questionDetails, 0, null, topics));
