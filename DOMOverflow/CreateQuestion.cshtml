@@ -22,7 +22,6 @@
         Guid questionId = Guid.NewGuid();
         DBManager.PostQuestion(new Question(questionId, DBManager.GetLoggedInUser(Session).id, DateTime.UtcNow, questionTitle, questionDetails, 0, null, new List<Topic>()));
         Response.Redirect($"~/Questions/Question?id={questionId}");
-        // Some fancy DB stuff
     }
 }
 <body>
