@@ -2,31 +2,38 @@
 @{
     Layout = "~/_Layout.cshtml";
 
-    /*if (!IsPost)
-    {
-        if ((Request.QueryString["id"].IsEmpty() || !Request.QueryString["id"].Is<Guid>()) && DBManager.GetQuestion(Request.QueryString["id"].As<Guid>()) == null)
-        {
-            Response.Redirect("~/404");
-        }
-    }*/
+    //if (!IsPost && (Request.QueryString["id"].IsEmpty() || !Request.QueryString["id"].Is<Guid>()) && DBManager.GetQuestion(Request.QueryString["id"].As<Guid>()) == null)
+    //{
+    //    Response.Redirect("~/404");
+    //}
 
     Question question = DBManager.GetQuestion(Request.QueryString["id"].As<Guid>());
+    string tags = string.Empty;
+    if (question != null)
+    {
+        foreach (var topic in question.Topics)
+        {
+            tags += $" {topic.name}";
+        }
+    }
 
     Page.Title = question?.Title ?? "";
 }
 <body>
-    <div class="container">
+    <div class="container col-md-6" style="margin: 3% auto">
         <h1 id="questionTitle">
-            @if (question != null)
-            {
-                @question.Title
-            }
-            else
-            {
-                @Html.Raw("Example Question Title")
-            }
+            <b>
+                @if (question != null)
+                {
+                    @question.Title
+                }
+                else
+                {
+                    @Html.Raw("Example Question Title")
+                }
+            </b>
         </h1>
-        <p id="questionPostDate" class="float-md-right">
+        <p id="questionPostDate" class="float-md-right align-top">
             @if (question != null)
             {
                 @question.PostDate
@@ -35,7 +42,7 @@
             {
                 @Html.Raw("Example Date")
             }
-        </p>
+        </p><br /><br />
         <p id="questionDetails">
             @if (question != null)
             {
@@ -43,8 +50,10 @@
             }
             else
             {
-                @Html.Raw("Example content.\nHow do you like it?\nIt's even multi lined!")
+                @Html.Raw("Example content.<br/>How do you like it?<br/>It's even multi lined!")
             }
         </p>
+        <br /><br /><br />
+        <p class="text-primary">@(question != null ? tags : "Topic 1, Topic 2")</p>
     </div>
 </body>
