@@ -6,7 +6,7 @@ CREATE TABLE Users(
      Username  NVARCHAR(127)  NOT NULL,
      Email     NVARCHAR(127)  NOT NULL,
      PwdSalt   BINARY(16)     NOT NULL,                                    -- Salt to prevent lookup attacks on the password hash.
-     PwdHash   BINARY(20)     NOT NULL,                                    -- Salted PBKDF2 hash of the password.
+     PwdHash   BINARY(20)     NOT NULL                                     -- Salted PBKDF2 hash of the password.
 );
 
 
