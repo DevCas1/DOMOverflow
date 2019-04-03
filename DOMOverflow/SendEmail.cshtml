@@ -10,8 +10,8 @@
     if (IsPost) {
          EmailManager.SendEmail(user.email, "DOMOverflow Registratie Voltooien", new List<string> {
              "<h1>Hallo, " + user.username + "</h1>",
-             "<h8>Welkom bij DOMOverflow!</h8>",
-             "<h8>Uw registratie is bijna voltooid. Het enige dat nu nog resteert is om uw email adres te verifiëren.</h8>",
+             "<h8>Welkom bij DOMOverflow!</h8><br>",
+             "<h8>Uw registratie is bijna voltooid. Het enige dat nu nog resteert is om uw email adres te verifiëren.</h8><br>",
              "<br>",
              "<a href=\"" + Request.GetWebsiteBaseURL() + "CompleteRegistration.cshtml?vcode=" + user.id.ToString() + "\">",
                "<button>Email Verifiëren</button>",
