@@ -60,20 +60,19 @@ namespace DOMOverflow {
                 return false;
             }
 
-            int group = qryAllowed.GroupID;
             var pwd = DBManager.HashAndSalt(password);
             Guid id = Guid.NewGuid();
 
             int changes = db.Execute(@"
                 BEGIN
-                    IF NOT EXISTS (SELECT * FROM USERS WHERE Username=@2)
+                    IF NOT EXISTS (SELECT * FROM Users WHERE Username=@2)
                     BEGIN
-                        INSERT INTO USERS VALUES (@0, @1, @2, @3, @4, @5)
+                        INSERT INTO Users VALUES (@0, @1, @2, @3, @4, @5)
                     END
                 END
                 ",
                 id,
-                group,
+                (int) UserGroup.NOT_VERIFIED,
                 username,
                 email,
                 pwd.Item2,
@@ -86,6 +85,27 @@ namespace DOMOverflow {
             } else {
                 return DBManager.LoginUser(username, password, session, out error);
             }
+        }
+
+
+        public static void VerifyUser(Guid id) {
+            Database db = DBManager.Connect();
+
+            dynamic group = db.QueryValue(@"
+                    SELECT
+                        AllowedEmails.GroupID
+                    FROM Users INNER JOIN AllowedEmails ON Users.Email = AllowedEmails.Email
+                    WHERE Users.UUID = @0
+                ", 
+                id.ToString()
+            );
+
+            db.Execute(@"
+                UPDATE Users SET UserGroup = @0 WHERE UUID = @1
+                ",
+                group,
+                id.ToString()
+            );
         }
 
 
