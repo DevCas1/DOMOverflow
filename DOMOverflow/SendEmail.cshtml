@@ -1,0 +1,48 @@
+﻿@using DOMOverflow;
+
+@{
+    Page.Title = "Registratie Voltooien";
+    Layout = "~/_Layout.cshtml";
+
+    User user = DBManager.GetLoggedInUser(Session);
+    if (user == null || user.group != UserGroup.NOT_VERIFIED) { Response.Redirect("~/index.cshtml"); }
+
+    if (IsPost) {
+         EmailManager.SendEmail(user.email, "DOMOverflow Registratie Voltooien", new List<string> {
+             "<h1>Hallo, " + user.username + "</h1>",
+             "<h8>Welkom bij DOMOverflow!</h8>",
+             "<h8>Uw registratie is bijna voltooid. Het enige dat nu nog resteert is om uw email adres te verifiëren.</h8>",
+             "<br>",
+             "<a href=\"" + Request.GetWebsiteBaseURL() + "CompleteRegistration.cshtml?vcode=" + user.id.ToString() + "\">",
+               "<button>Email Verifiëren</button>",
+             "</a>"
+         });
+    }
+}
+
+<html>
+<head>
+     <link rel="stylesheet" href="~/css/SimpleContent.css" />
+</head>
+
+<body>
+     <div class="row">
+          <div class="col-md-3"></div>
+
+          <div class="col-md-6 main-content-border text-center">
+               <h1>Welkom, @user.username</h1>
+               <h8>Om uw registratie te voltooien is er een email naar uw email-adres gestuurd.</h8><br />
+               <h8>In deze email vindt u een link om uw registratie te voltooien.</h8><br />
+
+               <br />
+               
+               <h8>Geen email ontvangen?</h8>
+               <form method="post" action="~/SendEmail.cshtml">
+                    <button type="submit" class="btn btn-primary">Opnieuw verzenden</button>
+               </form>
+          </div>
+
+          <div class="col-md-3"></div>
+     </div>
+</body>
+</html>
