@@ -258,7 +258,7 @@ namespace DOMOverflow {
         public static void MarkAsSolution(Question question, Answer answer) {
             Database db = DBManager.Connect();
 
-            int changes = db.Execute("UPDATE Questions SET Answer=@0 WHERE Question=@1", answer.UUID.ToString(), question.UUID.ToString());
+            int changes = db.Execute("UPDATE Questions SET Answer=@0 WHERE UUID=@1", answer.UUID.ToString(), question.UUID.ToString());
             if (changes == 0) throw new ExternalException("Er is een fout opgetreden tijdens het markeren van het antwoord " + answer.UUID.ToString() + " op de vraag " + question.UUID.ToString());
         }
 

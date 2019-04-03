@@ -25,7 +25,7 @@
 
      <!-- CSS -->
      <link rel="stylesheet" href="css/layout.css" />
-     <link rel="stylesheet" href="css/@(page).css" />
+     <link rel="stylesheet" href="css/@(page.Split('?')[0]).css" />
 </head>
 <body>
     <div id="container">
@@ -37,25 +37,25 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarText">
                 <ul class="navbar-nav mr-auto">
-                    @*@if (isLoggedIn && session.IsGuest)*@
-                    @* { *@
                     <li class="nav-item">
                         <a class="nav-link" href="#">Link 1</a>
                     </li>
-                    @* } *@
-                    @*@if (isLoggedIn)*@
-                    @* { *@
                     <li class="nav-item">
                         <a class="nav-link" href="#">Link 2</a>
                     </li>
-                    @* } *@
                 </ul>
+                <section id="askQuestion">
+                    @if (user != null && user.group == UserGroup.PROJECT_PARTICIPANT)
+                    {
+                        <a class="text-white btn btn-primary" style="margin: 0 50px 0" href="~/CreateQuestion" title="CreateQuestion">Ask Question</a>
+                    }
+                </section>
                 <section id="login" class="navbar-text">
                     @if (isLoggedIn)
                     {
                         <text>
-                            <a class="email" href="~/index.cshtml" @*title="Wishlist"*@>@user.username</a>
-                            <a class="text-danger btn btn-outline-light" href="~/Login?Logout=true" title="Logout">Logout <i class="fas fa-sign-out-alt"></i></a>
+                            <a class="email" href="~/index.cshtml">@user.username</a>
+                            <a class="text-danger btn btn-outline-light" href="~/Logout" title="Logout">Logout <i class="fas fa-sign-out-alt"></i></a>
                         </text>
                     }
                     else

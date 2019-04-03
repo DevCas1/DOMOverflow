@@ -1,0 +1,26 @@
+﻿.container {
+    margin: 20px auto;
+}
+
+.answerDivider {
+    clear: both;
+    margin-bottom: 10px;
+    height: 10px;
+    border-bottom: 1px solid #e4e6e8;
+}
+
+.divider {
+    clear: both;
+    margin-bottom: 10px;
+    height: 40px;
+    border-bottom: 1px solid #e4e6e8;
+}
+
+#markAsAnswer {
+    font-size: xx-large;
+}
+
+#markAsAnswer i:hover{
+    font-size: xx-large;
+    color: lightgreen;
+ }
