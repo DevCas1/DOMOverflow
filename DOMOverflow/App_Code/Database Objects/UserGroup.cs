@@ -11,4 +11,34 @@ namespace DOMOverflow {
         TEACHER                 = 3,
         ADMIN                   = 4
     };
+
+    
+    public static class UserGroupMethods {
+        public static bool CanAskQuestion(this UserGroup group) {
+            return (
+                group == UserGroup.PROJECT_PARTICIPANT  ||
+                group == UserGroup.TEACHER              ||
+                group == UserGroup.ADMIN
+            );
+        }
+
+
+        public static bool CanGiveAnswer(this UserGroup group) {
+            return (
+                group == UserGroup.PROJECT_PARTICIPANT  ||
+                group == UserGroup.STUDENT              ||
+                group == UserGroup.TEACHER              ||
+                group == UserGroup.ADMIN
+            );
+        }
+
+
+        public static bool CanMakeTopic(this UserGroup group) {
+            return (
+                group == UserGroup.PROJECT_PARTICIPANT  ||
+                group == UserGroup.TEACHER              ||
+                group == UserGroup.ADMIN
+            );
+        }
+    }
 }

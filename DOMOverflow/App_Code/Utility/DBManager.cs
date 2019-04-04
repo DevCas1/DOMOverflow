@@ -88,7 +88,7 @@ namespace DOMOverflow {
         }
 
 
-        public static void VerifyUser(Guid id) {
+        public static void VerifyUser(HttpSessionStateBase session, Guid id) {
             Database db = DBManager.Connect();
 
             dynamic group = db.QueryValue(@"
@@ -106,6 +106,9 @@ namespace DOMOverflow {
                 group,
                 id.ToString()
             );
+
+            User user = DBManager.GetLoggedInUser(session);
+            if (user != null && user.id == id) user.group = (UserGroup) group;
         }
 
 
