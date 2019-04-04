@@ -1,105 +1,70 @@
-﻿@using DOMOverflow;
+﻿@using System.Globalization
+@using DOMOverflow;
 @{
     Layout = "~/_Layout.cshtml";
 
     const int maxQuestions = 10;
+    const int maxQuestionTitleChars = 50;
     List<Question> questions = new List<Question>();
 
-    //var db = DBManager.Connect();
-    //dynamic vragen = db.Query(@"SELECT
-    //           Posts.UUID,
-    //           Posts.Poster,
-    //           Posts.PostDate,
-    //           Posts.Content,
-    //           Posts.Rating,
-    //           Questions.UUID,
-    //           Questions.Title,
-    //           Questions.Answer
-    //           FROM Posts INNER JOIN Questions ON Posts.UUID = Questions.UUID");
+    var db = DBManager.Connect();
+    dynamic dbQuestions = db.Query(@"SELECT TOP(@0)
+                                     Posts.UUID
+                                     FROM Posts INNER JOIN Questions ON Posts.UUID = Questions.UUID
+                                     ORDER BY Posts.PostDate DESC", maxQuestionTitleChars);
 
-    //foreach (dynamic vraag in vragen)
-    //{
-    //    questions.Add(new Question(Guid.Parse(vraag.UUID),
-    //                               vraag.Poster,
-    //                               vraag.PostDate,
-    //                               vraag.Title,
-    //                               vraag.Content,
-    //                               vraag.Rating,
-    //                               null,
-    //                               new List<Topic>()));
-    //}
-
-    for (int index = 0; index < maxQuestions; index++)
+    foreach (dynamic dbQuestion in dbQuestions)
     {
-        questions.Add(new Question(Guid.NewGuid(),
-                                   Guid.NewGuid(),
-                                   DateTime.Now,
-                                   "Some Question Title",
-                                   "Oh no, I'm afraid this question does not hold any content! Or does it?",
-                                   0,
-                                   null,
-                                   new List<Topic>()));
+        questions.Add(DBManager.GetQuestion(Guid.Parse(dbQuestion.UUID)));
     }
-
-    questions = questions.GetRange(0, maxQuestions);
 }
 <body>
     <div class="container">
-        <h1>Index Page.</h1>
-        <h2> <a href="~/CreateQuestion.cshtml">Create a Question</a> </h2>
-
-        @foreach (Question question in questions)
+        <h3>Recent</h3>
+        @if (questions.Count == 0)
         {
-            <div class="divider" )"></div>
-            <a href="@($"Question?id={question.UUID}")">
-                <div id="answer">
-                    <p id="questionDetails">
-                        @question.Content
-                    </p>
-                    <br />
-                    @if (question.Answer != null)
-                    {
-                        <i id="markAsAnswer" class="fas fa-check-square float-xl-left text-success"></i>
-                    }
-                    <p class="float-md-right text-align-right text-secondary">
-                        Poster: @question.PosterID<br /> @*No way to retrieve a user's name by it's ID*@
-                        answered at @question.PostDate
-                    </p>
-                </div>
-            </a>
+            <div class="divider"></div><br />
+            <h1><b>Huh, looks like there are no questions asked yet...<br />You could definitely help by asking one yourself!</b></h1>
+            <div class="divider"></div>
         }
-
-        @*@for (int TestVraag = 0; TestVraag < 10; TestVraag++)
+        else
+        {
+            foreach (Question question in questions)
             {
-                //Console.WriteLine(Oof[TestVraag]);
-                <table>
-                    <tr>
-                        <td>Vraagnummer Ik snap iets niet lol help</td>
-                        <td><a href="~/Question.cshtml">Question</a></td>
-                    </tr>
-                </table>
+                <div class="divider"></div>
+                <div class="question narrow">
+                    <div class="cp">
+                        <div class="@(question.Answer == null ? "unanswered" : "answered")">
+                            <i class="fas fa-check-square"></i>
+                        </div>
+                    </div>
+                    <div class="summary">
+                        <p id="questionTitle">
+                            <a href="@($"/Question?id={question.UUID}")">
+                                <div id="questionTitle" class="float-md-left align-top">
+                                    @(question.Title.Length > maxQuestionTitleChars ? $"{question.Title.Substring(0, maxQuestionTitleChars)}..." : question.Title)
+                                </div>
+                            </a>
+                            <div id="questionPostDate" class="float-md-right align-top">
+                                @Html.Raw($"Asked {(question.PostDate.Date == DateTime.Now.Date ? "Today" : (int)(DateTime.Now - question.PostDate).TotalDays + " days ago")}")
+                            </div>
+                        </p>
+                        <br/>
+                        <p>
+                            <div class="topic">
+                                @foreach (var topic in question.Topics)
+                                {
+                                    @Html.Raw($"{topic.name}{(topic == question.Topics.Last() ? "" : ",")} ") //TODO: Implement link to topic search
+                                }
+                            </div>
+                            <div class="poster">
+                                @DBManager.GetUser(question.PosterID).username
+                            </div>
+                        </p>
+                    </div>
+                </div>
             }
-            <br />
-            <br />
-
-            @for (int test = 0; test < 10; test++)
-            {
-                <table>
-                    <tr>
-                        <td>Q1 Ik snap iets niet lol help</td>
-                        <td><a href="~/Question.cshtml">Question</a></td>
-                    </tr>
-
-                    <tr>
-                        <td>Q2 Ik snap iets niet lol help.</td>
-                        <td><a href="~/Question.cshtml">Question</a></td>
-                    </tr>
-
-                    <tr>
-                        <td>Q3 Ik snap iets niet lol help</td>
-                        <td><a href="~/Question.cshtml">Question</a></td>
-                    </tr>
-                </table>
-            }*@
+            <div class="divider"></div>
+        }
     </div>
 </body>

@@ -48,29 +48,32 @@
 }
 <body>
     <div class="container col-md-6">
-        <h1 id="questionTitle">
-            <b>
-                @Html.Raw($"{question?.Title ?? "Example Question Title"}")
-            </b>
-        </h1>
-        <div class="divider"></div><br />
-        <p id="questionPostDate" class="float-md-right align-top">
-            @if (question != null)
-            {
-                @Html.Raw($"Asked: {(question.PostDate.Date == DateTime.Now.Date ? "Today" : (question.PostDate - DateTime.Now).TotalDays.ToString(CultureInfo.InvariantCulture) + " days ago")}")
-            }
-            else
-            {
-                @Html.Raw("Asked: @DateTime.now")
-            }
-        </p>
-        <p id="questionDetails">
-            @Html.Raw($"{question?.Content ?? "Example content.<br/>How do you like it?"}")
-        </p>
-        <p class="text-primary">@(question != null ? tags : "Topic 1, Topic 2")</p>
+        <div class="question">
+            <h1 id="questionTitle">
+                <b>
+                    @Html.Raw($"{question?.Title ?? "Example Question Title"}")
+                </b>
+            </h1>
+            <div class="divider"></div><br />
+            <p id="questionPostDate" class="float-md-right align-top">
+                @if (question != null)
+                {
+                    @Html.Raw($"Asked: {(question.PostDate.Date == DateTime.Now.Date ? "Today" : (int)(DateTime.Now - question.PostDate).TotalDays + " days ago")}")
+                }
+                else
+                {
+                    @Html.Raw("Asked: @DateTime.now")
+                }
+            </p>
+            <p id="questionDetails">
+                @Html.Raw($"{question?.Content ?? "Example content.<br/>How do you like it?"}")
+            </p>
+            <p class="text-primary">@(question != null ? tags : "Topic 1, Topic 2")</p>
+        </div>
         @if (question?.Answer != null || answers != null)
         {
-            @Html.Raw($"<br><br><b>{answers.Count} {(answers.Count == 1 ? "Answer" : "Answers")}</b>");
+            @Html.Raw($"<br><br><b>{answers.Count} {(answers.Count == 1 ? "Answer" : "Answers")}</b>")
+            ;
             if (question.Answer != null)
             {
                 var answer = DBManager.GetAnswer(question.Answer.Value);
@@ -82,7 +85,7 @@
                     <br />
                     <i id="markAsAnswer" class="fas fa-check-square float-xl-left text-success"></i>
                     <p class="float-md-right text-align-right text-secondary">
-                        Poster: @answer.PosterID<br /> @*No way to retrieve a user's name by it's ID*@
+                        Poster: @DBManager.GetUser(answer.PosterID).username<br /> @*No way to retrieve a user's name by it's ID*@
                         answered at @answer.PostDate
                     </p>
                 </div>
@@ -116,7 +119,7 @@
                         </form>
                     }
                     <p class="float-md-right text-align-right text-secondary">
-                        Poster: @answer.PosterID<br /> @*No way to retrieve a user's name by it's ID*@
+                        Poster: @DBManager.GetUser(answer.PosterID).username<br /> @*No way to retrieve a user's name by it's ID*@
                         answered at @answer.PostDate
                     </p>
                 </div>
