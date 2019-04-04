@@ -89,7 +89,7 @@
             }
             foreach (var answer in answers)
             {
-                if (question.Answer.Value == answer.UUID)
+                if (question.Answer != null && question.Answer.Value == answer.UUID)
                 {
                     continue;
                 }
@@ -99,9 +99,12 @@
                         @answer.Content
                     </p>
                     <br />
-                    @if (question.Answer != null && question.Answer.Value == answer.UUID)
+                    @if (question.Answer != null)
                     {
-                        <i id="markAsAnswer" class="fas fa-check-square float-xl-left text-success"></i>
+                        if (question.Answer.Value == answer.UUID)
+                        {
+                            <i id="markAsAnswer" class="fas fa-check-square float-xl-left text-success"></i>
+                        }
                     }
                     else if (loggedInUser != null && question.PosterID == loggedInUser.id)
                     {
