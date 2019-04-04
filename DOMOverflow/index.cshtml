@@ -1,29 +1,105 @@
 ﻿@using DOMOverflow;
-@using WebMatrix.Data;
-
 @{
     Layout = "~/_Layout.cshtml";
-    DBManager.Connect();
+
+    const int maxQuestions = 10;
+    List<Question> questions = new List<Question>();
+
+    //var db = DBManager.Connect();
+    //dynamic vragen = db.Query(@"SELECT
+    //           Posts.UUID,
+    //           Posts.Poster,
+    //           Posts.PostDate,
+    //           Posts.Content,
+    //           Posts.Rating,
+    //           Questions.UUID,
+    //           Questions.Title,
+    //           Questions.Answer
+    //           FROM Posts INNER JOIN Questions ON Posts.UUID = Questions.UUID");
+
+    //foreach (dynamic vraag in vragen)
+    //{
+    //    questions.Add(new Question(Guid.Parse(vraag.UUID),
+    //                               vraag.Poster,
+    //                               vraag.PostDate,
+    //                               vraag.Title,
+    //                               vraag.Content,
+    //                               vraag.Rating,
+    //                               null,
+    //                               new List<Topic>()));
+    //}
+
+    for (int index = 0; index < maxQuestions; index++)
+    {
+        questions.Add(new Question(Guid.NewGuid(),
+                                   Guid.NewGuid(),
+                                   DateTime.Now,
+                                   "Some Question Title",
+                                   "Oh no, I'm afraid this question does not hold any content! Or does it?",
+                                   0,
+                                   null,
+                                   new List<Topic>()));
+    }
+
+    questions = questions.GetRange(0, maxQuestions);
 }
+<body>
+    <div class="container">
+        <h1>Index Page.</h1>
+        <h2> <a href="~/CreateQuestion.cshtml">Create a Question</a> </h2>
 
-<html5>
-     <head>
-          <title>Example Page</title>
+        @foreach (Question question in questions)
+        {
+            <div class="divider" )"></div>
+            <a href="@($"Question?id={question.UUID}")">
+                <div id="answer">
+                    <p id="questionDetails">
+                        @question.Content
+                    </p>
+                    <br />
+                    @if (question.Answer != null)
+                    {
+                        <i id="markAsAnswer" class="fas fa-check-square float-xl-left text-success"></i>
+                    }
+                    <p class="float-md-right text-align-right text-secondary">
+                        Poster: @question.PosterID<br /> @*No way to retrieve a user's name by it's ID*@
+                        answered at @question.PostDate
+                    </p>
+                </div>
+            </a>
+        }
 
-          <!-- Remember to remove any imports you aren't using when creating an actual page. -->
+        @*@for (int TestVraag = 0; TestVraag < 10; TestVraag++)
+            {
+                //Console.WriteLine(Oof[TestVraag]);
+                <table>
+                    <tr>
+                        <td>Vraagnummer Ik snap iets niet lol help</td>
+                        <td><a href="~/Question.cshtml">Question</a></td>
+                    </tr>
+                </table>
+            }
+            <br />
+            <br />
 
-          <!-- jQuery -->
-          <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+            @for (int test = 0; test < 10; test++)
+            {
+                <table>
+                    <tr>
+                        <td>Q1 Ik snap iets niet lol help</td>
+                        <td><a href="~/Question.cshtml">Question</a></td>
+                    </tr>
 
-          <!-- Bootstrap -->
-          <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.0/js/bootstrap.min.js"></script>
-          <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.0/css/bootstrap.min.css">
+                    <tr>
+                        <td>Q2 Ik snap iets niet lol help.</td>
+                        <td><a href="~/Question.cshtml">Question</a></td>
+                    </tr>
 
-          <!-- FontAwesome -->
-          <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
-     </head>
-
-     <body>
-          <h1>This is an example page.</h1>
-     </body>
-</html5>
+                    <tr>
+                        <td>Q3 Ik snap iets niet lol help</td>
+                        <td><a href="~/Question.cshtml">Question</a></td>
+                    </tr>
+                </table>
+            }*@
+    </div>
+</body>
