@@ -380,5 +380,13 @@ namespace DOMOverflow {
 
             return results;
         }
+
+        public static User GetUser(Guid userID)
+        {
+            Database db = Connect();
+            dynamic user = db.QuerySingle("SELECT * FROM Users WHERE UUID=@0", userID);
+            return new User(user.Username, user.Email,userID, (UserGroup) user.UserGroup);
+
+        }
     }
 }

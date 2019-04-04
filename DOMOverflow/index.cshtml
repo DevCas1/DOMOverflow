@@ -1,29 +1,77 @@
-﻿@using DOMOverflow;
-@using WebMatrix.Data;
-
+﻿@using System.Globalization
+@using DOMOverflow;
 @{
     Layout = "~/_Layout.cshtml";
-    DBManager.Connect();
+
+    const int maxQuestions = 10;
+    const int maxQuestionTitleChars = 50;
+    List<Question> questions = new List<Question>();
+
+    var db = DBManager.Connect();
+    dynamic dbQuestions = db.Query(@"SELECT TOP(@0)
+                             Posts.UUID
+                             FROM Posts INNER JOIN Questions ON Posts.UUID = Questions.UUID
+                             ORDER BY Posts.PostDate DESC", maxQuestionTitleChars);
+
+    foreach (dynamic dbQuestion in dbQuestions)
+    {
+        questions.Add(DBManager.GetQuestion(Guid.Parse(dbQuestion.UUID)));
+    }
 }
-
-<html5>
-     <head>
-          <title>Example Page</title>
-
-          <!-- Remember to remove any imports you aren't using when creating an actual page. -->
-
-          <!-- jQuery -->
-          <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
-
-          <!-- Bootstrap -->
-          <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.0/js/bootstrap.min.js"></script>
-          <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.0/css/bootstrap.min.css">
-
-          <!-- FontAwesome -->
-          <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
-     </head>
-
-     <body>
-          <h1>This is an example page.</h1>
-     </body>
-</html5>
+<body>
+    <div class="container">
+        <h3>Recent</h3>
+        @if (questions.Count == 0)
+        {
+            <div class="divider"></div><br />
+            <h1><b>Huh, looks like there are no questions asked yet...<br />You could definitely help by asking one yourself!</b></h1>
+            <div class="divider"></div>
+        }
+        else
+        {
+            foreach (Question question in questions)
+            {
+                <div class="divider"></div>
+                <div class="question narrow">
+                    <div class="cp">
+                        <div class="@(question.Answer == null ? "unanswered" : "answered")">
+                            <i class="fas fa-check-square"></i>
+                        </div>
+                    </div>
+                    <div class="summary">
+                        <p id="questionTitle">
+                            <a href="@($"/Question?id={question.UUID}")">
+                                <div id="questionTitle" class="float-md-left align-top">
+                                    @(question.Title.Length > maxQuestionTitleChars ? $"{question.Title.Substring(0, maxQuestionTitleChars)}..." : question.Title)
+                                </div>
+                            </a>
+                            <div id="questionPostDate" class="float-md-right align-top">
+                                @Html.Raw($"Asked {(question.PostDate.Date == DateTime.Now.Date ? "Today" : (int)(DateTime.Now - question.PostDate).TotalDays + " days ago")}")
+                            </div>
+                        </p>
+                        <br />
+                        <p>
+                            <div class="topic">
+                                @if (question.Topics.Count != 0)
+                                {
+                                    foreach (var topic in question.Topics)
+                                    {
+                                        @Html.Raw($"{topic.name}{(topic == question.Topics.Last() ? "" : ",")} ")//TODO: Implement link to topic search
+                                    }
+                                }
+                                else
+                                {
+                                    <div class="invisible">This is invisible text</div>
+                                }
+                            </div>
+                            <div class="poster float-md-right">
+                                @DBManager.GetUser(question.PosterID).username
+                            </div>
+                        </p>
+                    </div>
+                </div>
+            }
+            <div class="divider"></div>
+        }
+    </div>
+</body>
