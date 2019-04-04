@@ -380,5 +380,13 @@ namespace DOMOverflow {
 
             return results;
         }
+
+        public static User GetPoster(Question post)
+        {
+            Database db = Connect();
+            dynamic user = db.QuerySingle("SELECT * FROM Users WHERE UUID=@0", post.PosterID);
+            return new User(user.Username, user.Email, post.PosterID, (UserGroup) user.UserGroup);
+
+        }
     }
 }
