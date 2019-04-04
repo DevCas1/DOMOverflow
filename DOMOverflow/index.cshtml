@@ -9,9 +9,9 @@
 
     var db = DBManager.Connect();
     dynamic dbQuestions = db.Query(@"SELECT TOP(@0)
-                                     Posts.UUID
-                                     FROM Posts INNER JOIN Questions ON Posts.UUID = Questions.UUID
-                                     ORDER BY Posts.PostDate DESC", maxQuestionTitleChars);
+                             Posts.UUID
+                             FROM Posts INNER JOIN Questions ON Posts.UUID = Questions.UUID
+                             ORDER BY Posts.PostDate DESC", maxQuestionTitleChars);
 
     foreach (dynamic dbQuestion in dbQuestions)
     {
@@ -49,15 +49,22 @@
                                 @Html.Raw($"Asked {(question.PostDate.Date == DateTime.Now.Date ? "Today" : (int)(DateTime.Now - question.PostDate).TotalDays + " days ago")}")
                             </div>
                         </p>
-                        <br/>
+                        <br />
                         <p>
                             <div class="topic">
-                                @foreach (var topic in question.Topics)
+                                @if (question.Topics.Count != 0)
                                 {
-                                    @Html.Raw($"{topic.name}{(topic == question.Topics.Last() ? "" : ",")} ") //TODO: Implement link to topic search
+                                    foreach (var topic in question.Topics)
+                                    {
+                                        @Html.Raw($"{topic.name}{(topic == question.Topics.Last() ? "" : ",")} ")//TODO: Implement link to topic search
+                                    }
+                                }
+                                else
+                                {
+                                    <div class="invisible">This is invisible text</div>
                                 }
                             </div>
-                            <div class="poster">
+                            <div class="poster float-md-right">
                                 @DBManager.GetUser(question.PosterID).username
                             </div>
                         </p>
