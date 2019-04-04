@@ -83,9 +83,9 @@
                         @answer.Content
                     </p>
                     <br />
-                    <i id="markAsAnswer" class="fas fa-check-square float-xl-left text-success"></i>
+                    <i id="markAsAnswer" class="fas fa-check-square float-xl-left lightgreen"></i>
                     <p class="float-md-right text-align-right text-secondary">
-                        Poster: @DBManager.GetUser(answer.PosterID).username<br /> @*No way to retrieve a user's name by it's ID*@
+                        Poster: @DBManager.GetUser(answer.PosterID).username<br />
                         answered at @answer.PostDate
                     </p>
                 </div>
@@ -106,7 +106,7 @@
                     {
                         if (question.Answer.Value == answer.UUID)
                         {
-                            <i id="markAsAnswer" class="fas fa-check-square float-xl-left text-success"></i>
+                            <i id="markAsAnswer" class="fas fa-check-square float-xl-left lightgreen"></i>
                         }
                     }
                     else if (loggedInUser != null && question.PosterID == loggedInUser.id)
