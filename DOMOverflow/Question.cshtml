@@ -66,7 +66,7 @@
                 }
             </p>
             <p id="questionDetails">
-                @Html.Raw($"{question?.Content ?? "Example content.<br/>How do you like it?"}")
+                @Html.Raw($"{question?.Content.Replace("\\n", "<br>") ?? "Example content.<br/>How do you like it?"}")
             </p>
             <p class="text-primary">@(question != null ? tags : "Topic 1, Topic 2")</p>
         </div>
