@@ -8,7 +8,7 @@
     if (string.IsNullOrEmpty(code)) { Response.Redirect("~/404.cshtml"); }
 
     try {
-         DBManager.VerifyUser(Guid.Parse(code));
+         DBManager.VerifyUser(Session, Guid.Parse(code));
     } catch (Exception) {
          Response.Redirect("~/404.cshtml");
     }

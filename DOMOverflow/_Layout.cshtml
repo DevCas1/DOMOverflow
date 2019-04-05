@@ -2,8 +2,7 @@
 @{
     string page = Request.RawUrl.Substring(1).Split('.')[0];
 
-    var user = DBManager.GetLoggedInUser(Session);
-    bool isLoggedIn = user != null;
+    User user = DBManager.GetLoggedInUser(Session);
 }
 
 <!doctype html>
@@ -13,10 +12,6 @@
      <meta charset="utf-8">
      <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-     <!-- Bootstrap -->
-     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.0/js/bootstrap.min.js"></script>
-     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/css/bootstrap.min.css" integrity="sha384-Smlep5jCw/wG7hdkwQ/Z5nLIefveQRIY9nfy6xoR1uRYBtpZgI6339F5dgvm/e9B" crossorigin="anonymous">
-
      <!-- FontAwesome -->
      <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
 
@@ -24,69 +19,98 @@
      <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 
      <!-- CSS -->
-     <link rel="stylesheet" href="css/layout.css" />
+     <link rel="stylesheet" href="css/global.css" />
      <link rel="stylesheet" href="css/@(page.Split('?')[0]).css" />
-</head>
-<body>
-    <div id="container">
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-            <a class="navbar-brand" href="~/Login">DOMOverflow</a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText"
-                    aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarText">
-                <ul class="navbar-nav mr-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Link 1</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Link 2</a>
-                    </li>
-                </ul>
-                <section id="askQuestion">
-                    @if (user != null && user.group == UserGroup.PROJECT_PARTICIPANT)
-                    {
-                        <a class="text-white btn btn-primary" style="margin: 0 50px 0" href="~/CreateQuestion" title="CreateQuestion">Ask Question</a>
-                    }
-                </section>
-                <section id="login" class="navbar-text">
-                    @if (isLoggedIn)
-                    {
-                        <text>
-                            <a class="email" href="~/index.cshtml">@user.username</a>
-                            <a class="text-danger btn btn-outline-light" href="~/Logout" title="Logout">Logout <i class="fas fa-sign-out-alt"></i></a>
-                        </text>
-                    }
-                    else
-                    {
-                        <ul class="navbar-nav mr-auto">
-                            <li class="nav-item">
-                                <a class="nav-link" href="~/Login"><i class="fas fa-user"></i> Login</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="~/Register"><i class="fas fa-user-plus"></i> Register</a>
-                            </li>
-                        </ul>
-                    }
-                </section>
-            </div>
-        </nav>
-        <div id="header">
 
-        </div>
-        <div id="main">
-            @RenderBody()
-        </div>
-        <div id="footer">
-            @RenderSection("Scripts", false)
-        </div>
-    </div>
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
-            crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
-            crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/js/bootstrap.min.js" integrity="sha384-o+RDsa0aLu++PJvFqy8fFScvbHFLtbvScb8AjopnFD+iEQ7wo/CG0xlczd+2O/em"
-            crossorigin="anonymous"></script>
-</body>
+     <!-- Bootstrap -->
+     <!-- This must be the very last import, or the navbar will break. I do not know why. -->
+     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.0/css/bootstrap.min.css">
+     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.0/js/bootstrap.min.js"></script>
+
+     <script>
+          $(document).ready(function () {
+               // Change navbar toggle button size on expand.
+               $(".navbar-toggler").click(function () {
+                    if ($(this).hasClass("navbar-toggler-expand")) {
+                         $(this).removeClass("navbar-toggler-expand");
+                    } else {
+                         $(this).addClass("navbar-toggler-expand");
+                    }
+               });
+          });
+     </script>
+
+
+     @RenderSection("head", required: false)
+</head>
+     <body>
+          <nav class="navbar navbar-expand-xl navbar-dark bg-dark navbar-remove-margins">
+               <div class="navbar-header">
+                    <div class="navbar navbar-brand"><a href="~/index.cshtml"><img src="~/resources/logo_navbar.png" height="48" /></a></div>
+               </div>
+
+               <div class="collapse navbar-collapse navbar-remove-margins">
+                    <ul class="navbar navbar-nav navbar-remove-margins">
+                         @if (user != null && user.group.CanAskQuestion()) {
+                              <li class="nav-item"><a class="nav-link" href="~/CreateQuestion.cshtml">Stel een vraag</a></li>
+                         }
+                    </ul>
+
+                    <br class="show-on-nv-expand" />
+
+                    <div class="nav navbar-nav ml-auto navbar-center-on-collapse">
+                         <form class="form-inline navbar-search-margin" method="get" action="~/Search.cshtml">
+                              <input id="navbar-search-bar" name="query" class="form-control" type="search" placeholder="Zoeken..." />
+                              &nbsp;
+                              <button class="btn btn-primary" id="navbar-search-btn" type="submit">
+                                   <i class="fas fa-search"></i> &nbsp;
+                                   Zoek
+                              </button>
+                         </form>
+
+                         @if (user != null) {
+                              <div class="navbar-user-buttons">
+                                   <h5 class="navbar-text navbar-username-margins">@user.username &nbsp;</h5>
+
+                                   <a href="~/Logout.cshtml?src=@(string.IsNullOrEmpty(Request.QueryString["src"]) ? page.Split('?')[0] : Request.QueryString["src"])">
+                                        <button class="btn btn-primary standard-button-size">
+                                             <i class="fas fa-sign-out-alt"></i> &nbsp;
+                                             Log uit
+                                        </button>
+                                   </a>
+                              </div>
+                         } else {
+                              <div class="navbar-user-buttons">
+                                   <a href="~/Login.cshtml?src=@(string.IsNullOrEmpty(Request.QueryString["src"]) ? page.Split('?')[0] : Request.QueryString["src"])">
+                                        <button class="btn btn-primary standard-button-size">
+                                             <i class="fas fa-user"></i> &nbsp;
+                                             Log in
+                                        </button>
+                                   </a>
+
+                                   <a href="~/Register.cshtml?src=@(string.IsNullOrEmpty(Request.QueryString["src"]) ? page.Split('?')[0] : Request.QueryString["src"])">
+                                        <button class="btn btn-primary standard-button-size">
+                                             <i class="fas fa-user-plus"></i> &nbsp;
+                                             Registreer
+                                        </button>
+                                   </a>
+                              </div>
+                         }
+                    </div>
+               </div>
+
+               <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="navbar-toggler-icon"></span>
+               </button>
+          </nav>
+
+
+          <div id="main">
+               @RenderBody()
+          </div>
+
+          <div id="footer">
+               @RenderSection("Scripts", false)
+          </div>
+     </body>
 </html>

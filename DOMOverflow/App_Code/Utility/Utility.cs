@@ -56,8 +56,8 @@ namespace DOMOverflow {
             foreach (string key in data) s.AppendFormat("<input type='hidden' name='{0}' value='{1}' />", key, data[key]);
             
             s.Append("</form></body></html>");
-            response.Write(s.ToString());
 
+            response.Write(s.ToString());
             response.End();
         }
     }
