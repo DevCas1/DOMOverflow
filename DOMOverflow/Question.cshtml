@@ -1,5 +1,4 @@
-﻿@using System.Globalization
-@using DOMOverflow
+﻿@using DOMOverflow
 @{
     Layout = "~/_Layout.cshtml";
 
@@ -10,17 +9,14 @@
 
     Question question = DBManager.GetQuestion(Request.QueryString["id"].As<Guid>());
     User loggedInUser = DBManager.GetLoggedInUser(Session);
-    bool canPostAnswer = loggedInUser != null &&
-                         loggedInUser.group != UserGroup.NOT_VERIFIED &&
-                         question.PosterID != loggedInUser.id;
+    bool canPostAnswer = loggedInUser != null && loggedInUser.group.CanGiveAnswer();
 
     Guid answerID = Request.Form["answerID"].As<Guid>();
 
     Page.Title = question?.Title ?? "Example question";
 
-    if (IsPost)
+    if (IsPost && question != null)
     {
-
         if (answerID != null && answerID != Guid.Empty)
         {
             DBManager.MarkAsSolution(question, DBManager.GetAnswer(answerID));

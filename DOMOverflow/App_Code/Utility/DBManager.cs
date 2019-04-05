@@ -392,7 +392,7 @@ namespace DOMOverflow {
 
         }
 
-        public static IEnumerable<dynamic> GetSearchResult (string topicName)
+        public static IEnumerable<dynamic> GetSearchResult(string topicName)
         {
             Database db = Connect();
             var searchTerm = "%" + topicName + "%";
@@ -408,23 +408,13 @@ namespace DOMOverflow {
         {
             Database db = Connect();
             var searchTerm = "%" + questionTitle + "%";
-            //string qryString = @"SELECT Posts.UUID, Posts.Poster, Posts.PostDate, Posts.Content, Questions.UUID, Questions.Title
-            //                    FROM Questions INNER JOIN Posts ON Posts.UUID = Questions.UUID
-            //                    ";
 
             string queryString = @"SELECT Posts.UUID, Questions.Title
                                    FROM Posts INNER JOIN Questions ON Posts.UUID = Questions.UUID 
                                    WHERE Questions.Title LIKE @0";
 
-            List<Question> questions = new List<Question>();
             IEnumerable<dynamic> dbQuestions = db.Query(queryString, searchTerm);
-            foreach (var query in dbQuestions)
-            {
-                questions.Add(DBManager.GetQuestion(Guid.Parse(query.UUID)));
-            }
-            return questions;
-
-            //return db.Query(queryString, searchTerm).Select(query => GetQuestion(query.UUID)).Select(question => (Question)question).ToList();
+            return dbQuestions.Select(query => DBManager.GetQuestion(Guid.Parse(query.UUID))).Select(dummy => (Question) dummy).ToList();
         }
     }
 }

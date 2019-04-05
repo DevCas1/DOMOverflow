@@ -13,7 +13,7 @@
     if (!IsPost)
     {
         User user = DBManager.GetLoggedInUser(Session);
-        if (user == null || user.group == UserGroup.NOT_VERIFIED || user.group == UserGroup.STUDENT)
+        if (user == null || user.group.CanAskQuestion())
         {
             Response.Redirect("~/index");
         }
