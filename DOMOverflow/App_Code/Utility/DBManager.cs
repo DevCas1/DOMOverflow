@@ -391,5 +391,40 @@ namespace DOMOverflow {
             return new User(user.Username, user.Email,userID, (UserGroup) user.UserGroup);
 
         }
+
+        public static IEnumerable<dynamic> GetSearchResult (string topicName)
+        {
+            Database db = Connect();
+            var searchTerm = "%" + topicName + "%";
+            string qryString = @"SELECT Topics.TopicName, Questions.UUID, Questions.Title
+                                 FROM Topics INNER JOIN QuestionTopics ON QuestionTopics.Topic = Topic.UUID
+                                 INNER JOIN Questions ON QuestionTopics.Question = Questions.UUID
+                                 WHERE Topics.TopicName LIKE @0";
+
+            return db.Query(qryString, searchTerm);
+        }
+
+        public static List<Question> GetQuestionSearch(string questionTitle)
+        {
+            Database db = Connect();
+            var searchTerm = "%" + questionTitle + "%";
+            //string qryString = @"SELECT Posts.UUID, Posts.Poster, Posts.PostDate, Posts.Content, Questions.UUID, Questions.Title
+            //                    FROM Questions INNER JOIN Posts ON Posts.UUID = Questions.UUID
+            //                    ";
+
+            string queryString = @"SELECT Posts.UUID, Questions.Title
+                                   FROM Posts INNER JOIN Questions ON Posts.UUID = Questions.UUID 
+                                   WHERE Questions.Title LIKE @0";
+
+            List<Question> questions = new List<Question>();
+            IEnumerable<dynamic> dbQuestions = db.Query(queryString, searchTerm);
+            foreach (var query in dbQuestions)
+            {
+                questions.Add(DBManager.GetQuestion(Guid.Parse(query.UUID)));
+            }
+            return questions;
+
+            //return db.Query(queryString, searchTerm).Select(query => GetQuestion(query.UUID)).Select(question => (Question)question).ToList();
+        }
     }
 }
