@@ -1,0 +1,140 @@
+﻿@using System.Globalization
+@using DOMOverflow
+@{
+    Layout = "~/_Layout.cshtml";
+
+    if (!IsPost && (Request.QueryString["id"].IsEmpty() || !Request.QueryString["id"].Is<Guid>()) && DBManager.GetQuestion(Request.QueryString["id"].As<Guid>()) == null)
+    {
+        Response.Redirect("~/404");
+    }
+
+    Question question = DBManager.GetQuestion(Request.QueryString["id"].As<Guid>());
+    User loggedInUser = DBManager.GetLoggedInUser(Session);
+    bool canPostAnswer = loggedInUser != null &&
+                         loggedInUser.group != UserGroup.NOT_VERIFIED &&
+                         question.PosterID != loggedInUser.id;
+
+    Guid answerID = Request.Form["answerID"].As<Guid>();
+
+    Page.Title = question?.Title ?? "Example question";
+
+    if (IsPost)
+    {
+
+        if (answerID != null && answerID != Guid.Empty)
+        {
+            DBManager.MarkAsSolution(question, DBManager.GetAnswer(answerID));
+            Response.Redirect($"~/Question?id={question.UUID}");
+        }
+
+        Validation.RequireField("newAnswer", "A question title is required!");
+
+        if (canPostAnswer && Validation.IsValid())
+        {
+            DBManager.PostAnswer(new Answer(Guid.NewGuid(), loggedInUser.id, question.UUID, DateTime.Now, Request.Form["newAnswer"], 0));
+            Response.Redirect($"~/Question?id={question.UUID}");
+        }
+    }
+
+    List<Answer> answers = question != null ? DBManager.GetAnswersForQuestion(question) : new List<Answer>();
+    string tags = string.Empty;
+    if (question != null)
+    {
+        foreach (var topic in question.Topics)
+        {
+            tags += $" {topic.name}";
+        }
+    }
+}
+<body>
+    <div class="container col-md-6">
+        <div class="question">
+            <h1 id="questionTitle">
+                <b>
+                    @Html.Raw($"{question?.Title ?? "Example Question Title"}")
+                </b>
+            </h1>
+            <div class="divider"></div><br />
+            <p id="questionPostDate" class="float-md-right align-top">
+                @if (question != null)
+                {
+                    @Html.Raw($"Asked: {(question.PostDate.Date == DateTime.Now.Date ? "Today" : (int)(DateTime.Now - question.PostDate).TotalDays + " days ago")}")
+                }
+                else
+                {
+                    @Html.Raw("Asked: @DateTime.now")
+                }
+            </p>
+            <p id="questionDetails">
+                @Html.Raw($"{question?.Content.Replace("\\n", "<br>") ?? "Example content.<br/>How do you like it?"}")
+            </p>
+            <p class="text-primary">@(question != null ? tags : "Topic 1, Topic 2")</p>
+        </div>
+        @if (question?.Answer != null || answers != null)
+        {
+            @Html.Raw($"<br><br><b>{answers.Count} {(answers.Count == 1 ? "Answer" : "Answers")}</b>")
+            ;
+            if (question.Answer != null)
+            {
+                var answer = DBManager.GetAnswer(question.Answer.Value);
+                <div class="@(answer == answers[0] ? "answerDivider" : "divider")"></div>
+                <div id="answer">
+                    <p id="questionDetails">
+                        @answer.Content
+                    </p>
+                    <br />
+                    <i id="markAsAnswer" class="fas fa-check-square float-xl-left lightgreen"></i>
+                    <p class="float-md-right text-align-right text-secondary">
+                        Poster: @DBManager.GetUser(answer.PosterID).username<br />
+                        answered at @answer.PostDate
+                    </p>
+                </div>
+            }
+            foreach (var answer in answers)
+            {
+                if (question.Answer != null && question.Answer.Value == answer.UUID)
+                {
+                    continue;
+                }
+                <div class="@(answer == answers[0] ? "answerDivider" : "divider")"></div>
+                <div id="answer">
+                    <p id="questionDetails">
+                        @answer.Content
+                    </p>
+                    <br />
+                    @if (question.Answer != null)
+                    {
+                        if (question.Answer.Value == answer.UUID)
+                        {
+                            <i id="markAsAnswer" class="fas fa-check-square float-xl-left lightgreen"></i>
+                        }
+                    }
+                    else if (loggedInUser != null && question.PosterID == loggedInUser.id)
+                    {
+                        <form method="POST">
+                            @Html.Hidden("answerID", answer.UUID)
+                            <button type="submit" class="btn btn-outline-success">
+                                <i id="markAsAnswer" class="far fa-check-square float-xl-left"></i>
+                            </button>
+                        </form>
+                    }
+                    <p class="float-md-right text-align-right text-secondary">
+                        Poster: @DBManager.GetUser(answer.PosterID).username<br /> @*No way to retrieve a user's name by it's ID*@
+                        answered at @answer.PostDate
+                    </p>
+                </div>
+            }
+        }
+        @if (canPostAnswer)
+        {
+            <div class="divider"></div>
+            <p><b>Your Answer</b></p>
+            <form method="POST">
+                <div class="form-group">
+                    <textarea type="text" class="form-control" name="newAnswer" id="formGroupExampleInput2" placeholder="Full details about the problem" required></textarea>
+                </div>
+                <input type="submit" class="btn btn-primary" value="Post Your Answer" />
+            </form>
+        }
+    </div>
+</body>

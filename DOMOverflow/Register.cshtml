@@ -4,6 +4,8 @@
     Page.Title = "Registreren";
     Layout = "~/_Layout.cshtml";
 
+    string EmailError = "";
+
     // Allow other pages to define a page to redirect back to after the registration is done.
     string src = Request.QueryString["src"];
     if (string.IsNullOrEmpty(src)) { src = "index"; }
@@ -23,16 +25,16 @@
          Validation.Add("password_confirm", Validator.EqualsTo("password", "De twee getypte wachtwoorden zijn niet hetzelfde."));
 
          if (Validation.IsValid()) {
-              Validation.Add("username", new ValidatorRegister(Request.Form["username"], Request.Form["password"], Request.Form["email"]));
-
-              if (Validation.IsValid()) { Response.Redirect(src); }
+              // Can't use a Validator for registration, since it is called twice every time IsValid is called for some reason.
+              bool success = DBManager.RegisterUser(Request.Form["username"], Request.Form["password"], Request.Form["email"], Session, out EmailError);
+              if (success) { Response.RedirectWithPost(new System.Collections.Specialized.NameValueCollection(), "SendEmail.cshtml"); }
          }
     }
 }
 
 <html>
      <head>
-          <link rel="stylesheet" href="css/LoginRegister.css" />
+          <link rel="stylesheet" href="~/css/SimpleContent.css" />
      </head>
 
      <body>
@@ -64,7 +66,7 @@
                                         <label for="email"><b>Email adres:</b></label>
                                         <input class="form-control" type="email" name="email" value="@Request.Form["email"]" />
 
-                                        @foreach (string str in (Validation.GetErrors("email").SplitAll().RemoveDuplicates())) {
+                                        @foreach (string str in (Validation.GetErrors("email").SplitAll().RemoveDuplicates().AddStateless(EmailError))) {
                                              <small class="form-text text-danger">@str</small>
                                         }
                                    </div>

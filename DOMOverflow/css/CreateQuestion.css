@@ -1,0 +1,9 @@
+﻿.container {
+    margin: 3% auto;
+    padding: 15px;
+    border-radius: 15px;
+    overflow: auto;
+    /*-webkit-box-shadow: 10px 10px 70px -4px rgba(0,0,0,0.20);
+    -moz-box-shadow: 10px 10px 70px -4px rgba(0,0,0,0.20);
+    box-shadow: 10px 10px 70px -4px rgba(0,0,0,0.20);*/
+}

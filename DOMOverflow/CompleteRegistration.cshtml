@@ -1,0 +1,40 @@
+﻿@using DOMOverflow;
+
+@{
+    Page.Title = "Registratie Voltooien";
+    Layout = "~/_Layout.cshtml";
+
+    string code = Request.QueryString["vcode"];
+    if (string.IsNullOrEmpty(code)) { Response.Redirect("~/404.cshtml"); }
+
+    try {
+         DBManager.VerifyUser(Session, Guid.Parse(code));
+    } catch (Exception) {
+         Response.Redirect("~/404.cshtml");
+    }
+}
+
+<html>
+     <head>
+          <link rel="stylesheet" href="~/css/SimpleContent.css" />
+     </head>
+
+     <body>
+          <div class="row">
+               <div class="col-md-3"></div>
+
+               <div class="col-md-6 main-content-border text-center">
+                    <h1>Success!</h1>
+                    <h5>Uw registratie is nu voltooid.</h5>
+
+                    <br /><br />
+
+                    <a href="~/index.cshtml">
+                         <button class="btn btn-primary standard-button-size">Terug</button>
+                    </a>
+               </div>
+
+               <div class="col-md-3"></div>
+          </div>
+     </body>
+</html>

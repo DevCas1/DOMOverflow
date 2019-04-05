@@ -60,20 +60,19 @@ namespace DOMOverflow {
                 return false;
             }
 
-            int group = qryAllowed.GroupID;
             var pwd = DBManager.HashAndSalt(password);
             Guid id = Guid.NewGuid();
 
             int changes = db.Execute(@"
                 BEGIN
-                    IF NOT EXISTS (SELECT * FROM USERS WHERE Username=@2)
+                    IF NOT EXISTS (SELECT * FROM Users WHERE Username=@2)
                     BEGIN
-                        INSERT INTO USERS VALUES (@0, @1, @2, @3, @4, @5)
+                        INSERT INTO Users VALUES (@0, @1, @2, @3, @4, @5)
                     END
                 END
                 ",
                 id,
-                group,
+                (int) UserGroup.NOT_VERIFIED,
                 username,
                 email,
                 pwd.Item2,
@@ -86,6 +85,30 @@ namespace DOMOverflow {
             } else {
                 return DBManager.LoginUser(username, password, session, out error);
             }
+        }
+
+
+        public static void VerifyUser(HttpSessionStateBase session, Guid id) {
+            Database db = DBManager.Connect();
+
+            dynamic group = db.QueryValue(@"
+                    SELECT
+                        AllowedEmails.GroupID
+                    FROM Users INNER JOIN AllowedEmails ON Users.Email = AllowedEmails.Email
+                    WHERE Users.UUID = @0
+                ", 
+                id.ToString()
+            );
+
+            db.Execute(@"
+                UPDATE Users SET UserGroup = @0 WHERE UUID = @1
+                ",
+                group,
+                id.ToString()
+            );
+
+            User user = DBManager.GetLoggedInUser(session);
+            if (user != null && user.id == id) user.group = (UserGroup) group;
         }
 
 
@@ -258,7 +281,7 @@ namespace DOMOverflow {
         public static void MarkAsSolution(Question question, Answer answer) {
             Database db = DBManager.Connect();
 
-            int changes = db.Execute("UPDATE Questions SET Answer=@0 WHERE Question=@1", answer.UUID.ToString(), question.UUID.ToString());
+            int changes = db.Execute("UPDATE Questions SET Answer=@0 WHERE UUID=@1", answer.UUID.ToString(), question.UUID.ToString());
             if (changes == 0) throw new ExternalException("Er is een fout opgetreden tijdens het markeren van het antwoord " + answer.UUID.ToString() + " op de vraag " + question.UUID.ToString());
         }
 
@@ -359,6 +382,14 @@ namespace DOMOverflow {
             foreach (dynamic answer in qry) results.Add(new Answer(Guid.Parse(answer.UUID), Guid.Parse(answer.Poster), Guid.Parse(answer.Question), answer.PostDate, answer.Content, answer.Rating));
 
             return results;
+        }
+
+        public static User GetUser(Guid userID)
+        {
+            Database db = Connect();
+            dynamic user = db.QuerySingle("SELECT * FROM Users WHERE UUID=@0", userID);
+            return new User(user.Username, user.Email,userID, (UserGroup) user.UserGroup);
+
         }
     }
 }
