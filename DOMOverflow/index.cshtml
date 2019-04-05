@@ -16,6 +16,11 @@
     {
         questions.Add(DBManager.GetQuestion(Guid.Parse(dbQuestion.UUID)));
     }
+
+    if (questions.Count > maxQuestions)
+    {
+        questions = questions.GetRange(0, maxQuestions);
+    }
 }
 <body>
     <div class="container">
