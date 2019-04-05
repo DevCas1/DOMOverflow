@@ -1,0 +1,74 @@
+﻿@using DOMOverflow
+@{
+    Layout = "~/_Layout.cshtml";
+
+    const int maxQuestions = 10;
+    const int maxQuestionTitleChars = 50;
+
+    string searchQuery = Request.QueryString["query"];
+    List<Question> questions = DBManager.GetQuestionSearch(searchQuery);
+
+    if (questions.Count > maxQuestions)
+    {
+        questions = questions.GetRange(0, maxQuestions);
+    }
+}
+<body>
+    <div class="container">
+        <h3>@searchQuery:</h3>
+        @if (questions.Count == 0)
+        {
+            <div class="center">
+                <div class="divider"></div><br />
+                <h5><b>Oops, looks like we were unable to find any questions...<br />Try a different search query, or create a question yourself!</b></h5>
+                <div class="divider"></div>
+            </div>
+        }
+        else
+        {
+            foreach (Question question in questions)
+            {
+                <div class="divider"></div>
+                <div class="question narrow">
+                    <div class="cp">
+                        <div class="@(question.Answer == null ? "unanswered" : "answered")">
+                            <i class="fas fa-check-square"></i>
+                        </div>
+                    </div>
+                    <div class="summary">
+                        <p id="questionTitle">
+                            <a href="@($"/Question?id={question.UUID}")">
+                                <div id="questionTitle" class="float-md-left align-top">
+                                    @(question.Title.Length > maxQuestionTitleChars ? $"{question.Title.Substring(0, maxQuestionTitleChars)}..." : question.Title)
+                                </div>
+                            </a>
+                            <div id="questionPostDate" class="float-md-right align-top">
+                                @Html.Raw($"Asked {(question.PostDate.Date == DateTime.Now.Date ? "Today" : (int)(DateTime.Now - question.PostDate).TotalDays + " days ago")}")
+                            </div>
+                        </p>
+                        <br />
+                        <p>
+                            <div class="topic">
+                                @if (question.Topics.Count != 0)
+                                {
+                                    foreach (var topic in question.Topics)
+                                    {
+                                        @Html.Raw($"{topic.name}{(topic == question.Topics.Last() ? "" : ",")} ")//TODO: Implement link to topic search
+                                    }
+                                }
+                                else
+                                {
+                                    <div class="invisible">This is invisible text</div>
+                                }
+                            </div>
+                            <div class="poster float-md-right">
+                                @DBManager.GetUser(question.PosterID).username
+                            </div>
+                        </p>
+                    </div>
+                </div>
+            }
+            <div class="divider"></div>
+        }
+    </div>
+</body>
